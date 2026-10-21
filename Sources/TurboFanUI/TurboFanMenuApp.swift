@@ -4,12 +4,14 @@
 import Charts
 import SwiftUI
 import TurboCore
+import UserNotifications
 
-@main
-struct TurboFanApp: App {
+public struct TurboFanMenuApp: App {
     @StateObject private var model = AppModel()
 
-    init() {
+    public init() {
+        UNUserNotificationCenter.current().delegate = NotificationOpener.shared
+        MessageCenter.shared.start()
         // `TurboFan --snapshot out.png` renders the panel to a PNG and quits (for checking the UI).
         let args = CommandLine.arguments
         if let i = args.firstIndex(of: "--snapshot"), i + 1 < args.count {
@@ -17,7 +19,7 @@ struct TurboFanApp: App {
             let snapModel = AppModel()
             DispatchQueue.main.asyncAfter(deadline: .now() + 12) {
                 MainActor.assumeIsolated {
-                    let tab = args.firstIndex(of: "--tab").flatMap { $0 + 1 < args.count ? PanelView.Tab(rawValue: args[$0 + 1]) : nil } ?? .turbo
+                    let tab = args.firstIndex(of: "--tab").flatMap { $0 + 1 < args.count ? args[$0 + 1] : nil } ?? PanelView.builtIn[0]
                     let content: AnyView = args.contains("--about")
                         ? AnyView(AboutView())
                         : AnyView(PanelView(tab: tab).environmentObject(snapModel))
@@ -34,7 +36,7 @@ struct TurboFanApp: App {
         }
     }
 
-    var body: some Scene {
+    public var body: some Scene {
         MenuBarExtra {
             PanelView().environmentObject(model)
         } label: {
@@ -53,40 +55,61 @@ struct TurboFanApp: App {
 }
 
 struct PanelView: View {
-    enum Tab: String, CaseIterable { case turbo = "Turbo", fans = "Fans", profiles = "Profiles", sensors = "Sensors" }
+    static let builtIn = ["Turbo", "Fans", "Profiles", "Sensors"]
+    private static let builtInSymbols = ["bolt.fill", "fanblades.fill", "slider.horizontal.3", "thermometer.medium"]
 
     @EnvironmentObject var model: AppModel
+    @ObservedObject private var messages = MessageCenter.shared
     @Environment(\.openWindow) private var openWindow
-    @State var tab: Tab = .turbo
+    @State var tab: String = PanelView.builtIn[0]
+
+    private var extraTabs: [ExtraTab] { Extensions.edition?.tabs ?? [] }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Picker("", selection: $tab) {
-                ForEach(Tab.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+            if let message = messages.banner {
+                MessageCard(message: message) { messages.dismiss(message) }
             }
-            .pickerStyle(.segmented)
-            .labelsHidden()
+            tabPicker
 
             switch tab {
-            case .turbo:
+            case "Turbo":
                 header
                 Divider()
                 stats
                 chart
                 Divider()
                 autoSection
-            case .fans:
+            case "Fans":
                 FansView()
-            case .profiles:
+            case "Profiles":
                 ProfilesView()
-            case .sensors:
+            case "Sensors":
                 SensorsView()
+            default:
+                extraTabs.first { $0.id == tab }?.view()
             }
             Divider()
             footer
         }
         .padding(14)
-        .frame(width: 330)
+        .frame(width: extraTabs.isEmpty ? 330 : 360)
+    }
+
+    /// Text tabs for the free build; icons once an edition adds more tabs.
+    private var tabPicker: some View {
+        Picker("", selection: $tab) {
+            if extraTabs.isEmpty {
+                ForEach(Self.builtIn, id: \.self) { Text($0).tag($0) }
+            } else {
+                ForEach(Array(zip(Self.builtIn, Self.builtInSymbols)), id: \.0) { name, symbol in
+                    Image(systemName: symbol).help(name).tag(name)
+                }
+                ForEach(extraTabs) { t in Image(systemName: t.symbol).help(t.id).tag(t.id) }
+            }
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
     }
 
     private var header: some View {
@@ -209,6 +232,7 @@ struct PanelView: View {
             HStack {
                 Toggle("Launch at login", isOn: $model.launchAtLogin)
                 Spacer()
+                ForEach(Extensions.edition?.actions ?? []) { a in Button(a.id, action: a.action) }
                 Button("About") {
                     NSApp.activate(ignoringOtherApps: true)
                     openWindow(id: "about")
@@ -220,7 +244,7 @@ struct PanelView: View {
                 Link(Brand.websiteLabel, destination: Brand.website)
                     .font(.caption.bold())
                 Spacer()
-                Text("\(Brand.product) \(Edition.name)").font(.caption).foregroundStyle(.secondary)
+                Text("\(Brand.product) \(Edition.name)").font(.caption).foregroundStyle(.secondary).lineLimit(1)
                 if !Edition.isPro {
                     Link("Get Pro", destination: Brand.proPage)
                         .font(.caption.bold())

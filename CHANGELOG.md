@@ -2,9 +2,13 @@
 
 ## 1.0.1 — 2026-10-22
 
+- **Fix:** the root helper could spin at high CPU and memory after it stopped sampling CPU power
+  (powermetrics end-of-file was read in a loop). Everyone on 1.0.0 should update.
+- Installer waits for the old helper to stop before starting the new one (fixes "Bootstrap failed: 5").
 - Panel footer shows cloud-coder.com and the edition (Free / Pro), with a link to TurboFan Pro.
 - About window shows the edition and the CloudCoder website.
-- Build flag `TURBOFAN_PRO=1` for Pro builds.
+- App code split into the `TurboFanUI` library with a plug-in hook for other editions.
+- In-app messages from CloudCoder (update notices, news) with image cards; can be turned off.
 
 ## 1.0.0 — 2026-10-22
 

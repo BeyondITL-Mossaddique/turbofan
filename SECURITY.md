@@ -38,10 +38,14 @@ and exposes one sysctl. It is ad-hoc signed and cannot load unless you relax kex
 Recovery (`csrutil enable --without kext`). That lowers your Mac's security; TurboFan works without
 it using Low Power Mode.
 
-## What TurboFan does not do
+## Network use
 
-- No network access. No telemetry, analytics or update checks.
-- No data leaves your Mac.
+TurboFan makes one kind of request: every 6 hours it reads the CloudCoder message feed
+(`https://cloud-coder.com/turbofan/messages.json`) for update notices and news. The request carries
+only the app version and edition (`?v=1.0.1&edition=free`); no device ID, account, or readings.
+Turn it off in the About window ("Show news and update messages from CloudCoder").
+
+TurboFan has no telemetry or analytics, and your readings and settings never leave your Mac.
 
 ## Reporting a vulnerability
 

@@ -14,12 +14,22 @@ KEXT_DEST="$KEXT_DIR/TurboFanMSR.kext"
 FAND_LABEL=com.cloudcoder.turbofan.helper
 
 [[ $EUID -eq 0 ]] || { echo "must run as root"; exit 1; }
+
+# launchd stops services asynchronously; wait, and retry the start, or bootstrap fails with error 5.
+stop_service() {
+  launchctl bootout "system/$1" 2>/dev/null || true
+  for _ in {1..20}; do launchctl print "system/$1" >/dev/null 2>&1 || return 0; sleep 0.5; done
+}
+start_service() {
+  for _ in {1..5}; do launchctl bootstrap system "$1" 2>/dev/null && return 0; sleep 1; done
+  launchctl bootstrap system "$1"
+}
 [[ "$USER_NAME" =~ ^[a-z_][a-z0-9_.-]*$ ]] || { echo "bad user name"; exit 1; }
 
 # Pre-release builds were called TurboSwitch; remove them so two helpers never fight over the fans.
 if [[ -e /Library/LaunchDaemons/com.cloudcoder.turboswitch.fand.plist || -e /etc/sudoers.d/turboswitch ]]; then
   echo "==> Removing old TurboSwitch install"
-  launchctl bootout system/com.cloudcoder.turboswitch.fand 2>/dev/null || true
+  stop_service com.cloudcoder.turboswitch.fand
   kmutil unload -b com.cloudcoder.TurboSwitchMSR 2>/dev/null || true
   rm -f /Library/LaunchDaemons/com.cloudcoder.turboswitch.fand.plist /Library/PrivilegedHelperTools/com.cloudcoder.turboswitch.fand
   rm -rf "/Library/Application Support/TurboSwitch" /etc/sudoers.d/turboswitch /usr/local/bin/turbo /var/log/turboswitch-fand.log
@@ -43,7 +53,7 @@ echo "==> Installing fan daemon ($FAND_LABEL)"
 USER_UID=$(id -u "$USER_NAME")
 FAND_BIN=/Library/PrivilegedHelperTools/$FAND_LABEL
 FAND_PLIST=/Library/LaunchDaemons/$FAND_LABEL.plist
-launchctl bootout system/$FAND_LABEL 2>/dev/null || true
+stop_service $FAND_LABEL
 mkdir -p /Library/PrivilegedHelperTools
 install -m 755 -o root -g wheel build/turbofand "$FAND_BIN"
 cat > "$FAND_PLIST" <<PLIST
@@ -67,7 +77,7 @@ cat > "$FAND_PLIST" <<PLIST
 PLIST
 chown root:wheel "$FAND_PLIST"
 chmod 644 "$FAND_PLIST"
-launchctl bootstrap system "$FAND_PLIST"
+start_service "$FAND_PLIST"
 
 echo "==> Allowing password-free switching (/etc/sudoers.d/turbofan)"
 KEXT_ESC=${KEXT_DEST// /\\ }

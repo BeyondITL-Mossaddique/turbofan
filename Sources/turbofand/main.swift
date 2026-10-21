@@ -139,6 +139,8 @@ final class MetricsSampler {
         if let p = process, Date().timeIntervalSince(lastAsked) > 30 {
             p.terminate()
             process = nil
+            latest = nil
+            buffer = ""
             log("powermetrics stopped (idle)")
         }
     }
@@ -151,7 +153,11 @@ final class MetricsSampler {
         p.standardOutput = pipe
         p.standardError = FileHandle.nullDevice
         pipe.fileHandleForReading.readabilityHandler = { [weak self] h in
-            let chunk = String(decoding: h.availableData, as: UTF8.self)
+            let data = h.availableData
+            // Empty read = end of file (powermetrics exited). Without this the handler fires
+            // forever and floods the main queue.
+            guard !data.isEmpty else { h.readabilityHandler = nil; return }
+            let chunk = String(decoding: data, as: UTF8.self)
             DispatchQueue.main.async { self?.consume(chunk) }
         }
         p.terminationHandler = { [weak self] _ in
@@ -168,6 +174,7 @@ final class MetricsSampler {
 
     private func consume(_ chunk: String) {
         buffer += chunk
+        if buffer.count > 500_000 { buffer = "" } // never let a bad stream grow without bound
         // Each sample starts with "*** Sampled system activity"; parse every complete one.
         let marker = "*** Sampled system activity"
         var parts = buffer.components(separatedBy: marker)

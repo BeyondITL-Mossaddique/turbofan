@@ -37,7 +37,11 @@ for you based on what you are doing.
 - Every temperature sensor the SMC exposes, with readable names.
 - Warning when macOS throttles the CPU for heat; the menu bar icon turns into a thermometer.
 
-Measured on a MacBook Pro 16" (2019, Core i9-9980HK) with all cores busy: **turbo on 4.11 GHz at
+**From CloudCoder**
+- Update notices and news appear as a card in the panel (and optionally a macOS notification).
+  Checked every 6 hours; can be turned off. See [SECURITY.md](SECURITY.md#network-use).
+
+Measured on a MacBook Pro 15" (2019, Core i9-9980HK) with all cores busy: **turbo on 4.11 GHz at
 67 W, turbo off 2.60 GHz at 20 W.**
 
 ## Requirements
@@ -47,7 +51,7 @@ Measured on a MacBook Pro 16" (2019, Core i9-9980HK) with all cores busy: **turb
 - Admin password once, at install.
 - To build from source: Xcode or the Command Line Tools (Swift 5.10+).
 
-Tested on: MacBook Pro 16" 2019 (i9-9980HK, T2), macOS 15.7. Reports from other models are welcome.
+Tested on: MacBook Pro 15" 2019 (MacBookPro15,1, i9-9980HK, T2), macOS 15.7. Reports from other models are welcome.
 
 ## Install
 

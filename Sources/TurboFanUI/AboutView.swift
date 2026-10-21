@@ -3,31 +3,30 @@
 
 import SwiftUI
 
-enum Brand {
-    static let product = "TurboFan"
-    static let company = "CloudCoder Limited"
-    static let websiteLabel = "cloud-coder.com"
-    static let website = URL(string: "https://cloud-coder.com")!
+public enum Brand {
+    public static let product = "TurboFan"
+    public static let company = "CloudCoder Limited"
+    public static let websiteLabel = "cloud-coder.com"
+    public static let website = URL(string: "https://cloud-coder.com")!
     /// Where "Get Pro" sends people. Point at the TurboFan Pro page once it is live.
-    static let proPage = URL(string: "https://cloud-coder.com")!
-    static let source = URL(string: "https://github.com/CloudCoderRnD/turbofan")!
-    static let license = "GPL-3.0-or-later"
-    static var version: String {
+    public static let proPage = URL(string: "https://cloud-coder.com")!
+    public static let source = URL(string: "https://github.com/CloudCoderRnD/turbofan")!
+    public static let license = "GPL-3.0-or-later"
+    public static var version: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev"
     }
 }
 
-/// Which build this is. The open-source build is always Free; a Pro build sets TURBOFAN_PRO.
+/// Which build this is: Free unless an edition plug-in is installed.
+@MainActor
 enum Edition {
-    #if TURBOFAN_PRO
-    static let isPro = true
-    #else
-    static let isPro = false
-    #endif
-    static var name: String { isPro ? "Pro" : "Free" }
+    static var isPro: Bool { Extensions.edition != nil }
+    static var name: String { Extensions.edition?.editionName ?? "Free" }
 }
 
 struct AboutView: View {
+    @AppStorage("messagesEnabled") private var messagesEnabled = true
+
     var body: some View {
         VStack(spacing: 14) {
             Image(nsImage: NSApp.applicationIconImage)
@@ -59,7 +58,16 @@ struct AboutView: View {
                 }
             }
 
+            if let extra = Extensions.edition?.aboutSection {
+                Divider()
+                extra
+            }
+
             Divider()
+
+            Toggle("Show news and update messages from CloudCoder", isOn: $messagesEnabled)
+                .font(.caption)
+                .onChange(of: messagesEnabled) { Task { await MessageCenter.shared.refresh() } }
 
             HStack {
                 Link("Source code", destination: Brand.source)
