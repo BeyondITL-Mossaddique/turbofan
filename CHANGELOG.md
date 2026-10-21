@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1 — 2026-10-22
+
+- Panel footer shows cloud-coder.com and the edition (Free / Pro), with a link to TurboFan Pro.
+- About window shows the edition and the CloudCoder website.
+- Build flag `TURBOFAN_PRO=1` for Pro builds.
+
 ## 1.0.0 — 2026-10-22
 
 First public release.

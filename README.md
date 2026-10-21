@@ -144,7 +144,7 @@ Example: `turbofan fan 1 sensor TCXC 50 85` runs fan 1 at minimum speed at 50 °
 
 `sudo ./scripts/test-fan-safety.sh` checks all of this on your Mac.
 
-Do not run Macs Fan Control or another fan tool at the same time; they write the same SMC keys.
+Do not run another fan control app at the same time; they write the same SMC keys.
 
 ## Uninstall
 
@@ -154,20 +154,16 @@ Do not run Macs Fan Control or another fan tool at the same time; they write the
 
 Fans return to macOS control and turbo goes back on. Low Power Mode is left as it is.
 
-## With thanks
+## Editions
 
-TurboFan exists because other people showed the way and made life easier for a lot of Mac users.
+| | Free | Pro |
+|---|---|---|
+| Turbo Boost control, fan control, profiles, readings | ✓ | ✓ |
+| Source code | Open source (GPL-3.0), this repository | Commercial |
+| Extra features for power users and priority support | | ✓ |
 
-- **Rubén García Pérez**, author of [Turbo Boost Switcher](https://github.com/rugarciap/Turbo-Boost-Switcher).
-  For years his app has been the answer for anyone with a hot, loud Intel Mac, and he released it
-  free and open source. The idea of a one-click turbo switch is his. Thank you, Rubén.
-- **CrystalIdea Software**, makers of [Macs Fan Control](https://crystalidea.com/macs-fan-control),
-  which set the standard for sensor-based fan control on the Mac.
-- **Hendrik Holtmann**, author of [smcFanControl](https://github.com/hholtmann/smcFanControl), and
-  the open-source community that documented how the Apple SMC works.
-
-TurboFan is an independent project. It contains no code from these apps, and none of their authors
-are involved with or endorse it. If you like what they made, please support them.
+TurboFan Free is complete and stays free. TurboFan Pro is coming from CloudCoder; see
+[cloud-coder.com](https://cloud-coder.com).
 
 ## Contributing
 
@@ -184,4 +180,6 @@ of the License, or (at your option) any later version. It is distributed WITHOUT
 
 Changing fan speeds and CPU settings is at your own risk. Mac, macOS and Apple silicon are trademarks
 of Apple Inc. Intel and Turbo Boost are trademarks of Intel Corporation. TurboFan is not affiliated
-with Apple, Intel, CrystalIdea Software or the authors of Turbo Boost Switcher or smcFanControl.
+with Apple or Intel.
+
+<p align="center"><a href="https://cloud-coder.com">cloud-coder.com</a></p>

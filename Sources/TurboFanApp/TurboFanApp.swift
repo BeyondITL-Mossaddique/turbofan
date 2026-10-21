@@ -215,6 +215,17 @@ struct PanelView: View {
                 }
                 Button("Quit") { NSApp.terminate(nil) }
             }
+            Divider()
+            HStack(spacing: 6) {
+                Link(Brand.websiteLabel, destination: Brand.website)
+                    .font(.caption.bold())
+                Spacer()
+                Text("\(Brand.product) \(Edition.name)").font(.caption).foregroundStyle(.secondary)
+                if !Edition.isPro {
+                    Link("Get Pro", destination: Brand.proPage)
+                        .font(.caption.bold())
+                }
+            }
         }
     }
 }

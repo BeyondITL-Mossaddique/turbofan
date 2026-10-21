@@ -39,7 +39,7 @@ struct FansView: View {
                 Divider()
             }
             if !model.fanInfo.isEmpty {
-                Text("Quit Macs Fan Control while using this.").font(.caption2).foregroundStyle(.secondary)
+                Text("Quit other fan control apps while using this.").font(.caption2).foregroundStyle(.secondary)
             }
         }
     }

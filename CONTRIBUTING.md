@@ -31,7 +31,9 @@ Check UI changes without screen recording: `build/TurboFan.app/Contents/MacOS/Tu
   [README.md](README.md#fan-safety) and the limits in [SECURITY.md](SECURITY.md). Run
   `sudo ./scripts/test-fan-safety.sh` if you change the helper.
 - New source files start with the SPDX header used in the existing files.
-- By contributing you agree that your contribution is licensed under GPL-3.0-or-later.
+- By contributing you agree that your contribution is licensed under GPL-3.0-or-later. Because
+  CloudCoder also offers a commercial Pro edition, we may ask you to sign a Contributor License
+  Agreement before we merge larger changes.
 
 ## Code of conduct
 
