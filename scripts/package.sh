@@ -15,5 +15,5 @@ cp scripts/install.sh scripts/install-privileged.sh scripts/uninstall.sh scripts
 cp README.md LICENSE SECURITY.md CHANGELOG.md VERSION "dist/$NAME/"
 mkdir -p "dist/$NAME/assets" && cp assets/AppIcon.png "dist/$NAME/assets/"
 (cd dist && ditto -c -k --norsrc --noextattr --keepParent "$NAME" "$NAME.zip")
-shasum -a 256 "dist/$NAME.zip" | tee "dist/$NAME.zip.sha256"
+(cd dist && shasum -a 256 "$NAME.zip" | tee "$NAME.zip.sha256")
 echo "wrote dist/$NAME.zip"
